@@ -6,6 +6,8 @@ import torch
 from torch import nn
 import numpy as np
 from networks.torchMatchModel import MatchModel
+import tensorboardX
+from tensorboardX import SummaryWriter
 
 if __name__ == '__main__':
 
@@ -22,6 +24,9 @@ if __name__ == '__main__':
     ZERO_MASK = torch.FloatTensor(zero_mask)
 
     out = model.forward(JD, CV, INF_MASK, ZERO_MASK)
+
+    writer = SummaryWriter()
+    writer.add_graph(model=model, input_to_model=(JD, CV, INF_MASK, ZERO_MASK))
 
     print(out)
 
