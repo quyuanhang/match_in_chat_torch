@@ -22,11 +22,13 @@ class Attention:
         jd_context = torch.bmm(cv_weights, cv_data)
         jd_cat = torch.cat([jd_data, jd_context], dim=2)
         jd_cat = torch.max(jd_cat, dim=1)[0]
+        # jd_cat = torch.mean(jd_cat, dim=1)
 
         jd_weights = functional.softmax(attention_weights, dim=1) * zero_mask
-        cv_context = torch.bmm(jd_weights, jd_data)
+        cv_context = torch.bmm(jd_weights.permute(0, 2, 1), jd_data)
         cv_cat = torch.cat([cv_data, cv_context], dim=2)
         cv_cat = torch.max(cv_cat, dim=1)[0]
+        # cv_cat = torch.mean(cv_cat, dim=1)
 
         return jd_cat, cv_cat
 

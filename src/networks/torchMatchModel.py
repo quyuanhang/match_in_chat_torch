@@ -22,6 +22,10 @@ class MatchModel(nn.Module):
         jd = self.jd_cnn.forward(jd)
         cv = self.cv_cnn.forward(cv)
         jd, cv = self.att.forward(jd, cv, inf_mask, zero_mask)
+        # jd = torch.max(jd, dim=1)[0]
+        # cv = torch.max(cv, dim=1)[0]
+        # jd = torch.mean(jd, dim=1)
+        # cv = torch.mean(cv, dim=1)
         score = self.mlp.forward(jd, cv)
         return score
 

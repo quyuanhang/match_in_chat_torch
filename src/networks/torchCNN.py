@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import functional
 
 
 class CNN(nn.Module):
@@ -7,33 +8,52 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
         self.sent_len = sent_len
         self.emb_dim = emb_dim
-        self.cnn1 = nn.Sequential(
-            nn.Conv2d(
+        # self.cnn1 = nn.Sequential(
+        #     nn.Conv2d(
+        #         in_channels=1,
+        #         out_channels=self.emb_dim,
+        #         kernel_size=(5, self.emb_dim),
+        #         stride=1,
+        #         padding=(2, 0)),
+        #     nn.ReLU())
+        # self.cnn2 = nn.Sequential(
+        #     nn.Conv2d(
+        #         in_channels=1,
+        #         out_channels=self.emb_dim,
+        #         kernel_size=(3, self.emb_dim),
+        #         stride=1,
+        #         padding=(1, 0)),
+        #     nn.ReLU())
+        self.cnn1 = nn.Conv2d(
                 in_channels=1,
                 out_channels=self.emb_dim,
                 kernel_size=(5, self.emb_dim),
                 stride=1,
-                padding=(2, 0)),
-            nn.ReLU())
-        self.cnn2 = nn.Sequential(
-            nn.Conv2d(
+                padding=(2, 0))
+        self.cnn2 = nn.Conv2d(
                 in_channels=1,
                 out_channels=self.emb_dim,
                 kernel_size=(3, self.emb_dim),
                 stride=1,
-                padding=(1, 0)),
-            nn.ReLU())
-        self.max_pool = nn.MaxPool2d(kernel_size=(self.sent_len, 1))
+                padding=(1, 0))
+        # self.max_pool = nn.MaxPool2d(kernel_size=(self.sent_len, 1))
 
     def forward(self, x):
         """
         :param x: 4d array: (batch * doc_len) * sent_len * emb_dim * 1
-        :return: 4d array: (batch * doc_len) * 1 * 1 * emb_dim
+        :return: 4d array: (batch * doc_len) * emb_dim * 1 * 1
         """
         x = self.cnn1(x)
+        x = functional.relu(x)
         x = x.permute(0, 3, 2, 1)
         x = self.cnn2(x)
-        x = self.max_pool(x)
+        x = functional.relu(x)
+        x = functional.max_pool2d(
+        # x = functional.avg_pool2d(
+            input=x,
+            kernel_size=(self.sent_len, 1)
+        )
+        # x = self.max_pool(x)
         return x
 
 

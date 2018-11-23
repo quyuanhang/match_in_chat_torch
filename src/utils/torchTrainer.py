@@ -43,8 +43,6 @@ def train(model, train_generator, test_generator, lr=0.0005, n_epoch=100):
                 fd['label'].cpu().numpy(),
                 batch_predict.cpu().detach().numpy())
             epoch_metric.append(batch_metric)
-        print('epoch: {}, train loss: {}'.format(epoch, np.array(epoch_loss).mean()))
-        print('epoch: {}, train metric: {}'.format(epoch, np.array(epoch_metric).mean()))
 
         for i, batch in tqdm(list(enumerate(test_generator))):
             fd = feed_dict(batch, model)
@@ -54,5 +52,25 @@ def train(model, train_generator, test_generator, lr=0.0005, n_epoch=100):
                 fd['label'].cpu().numpy(),
                 batch_predict.cpu().detach().numpy())
             valid_metrics.append(batch_metric)
-        print('epoch: {}, valid metric: {}'.format(epoch, np.array(valid_metrics).mean()))
+        print('epoch: {}, train loss: {:.3f}, train metric: {:.3f}, valid metric: {:.3f}'.format(
+            epoch,
+            np.array(epoch_loss).mean(),
+            np.array(epoch_metric).mean(),
+            np.array(valid_metrics).mean()))
+
+def valid(test_generator, model):
+    valid_metrics = []
+    for i, batch in tqdm(list(enumerate(test_generator))):
+        fd = feed_dict(batch, model)
+        batch_predict = model.forward(
+            fd['jd'], fd['cv'], fd['inf_mask'], fd['zero_mask'])
+        batch_metric = metrics.roc_auc_score(
+            fd['label'].cpu().numpy(),
+            batch_predict.cpu().detach().numpy())
+        valid_metrics.append(batch_metric)
+    print('valid metric: {:.3f}'.format(np.array(valid_metrics).mean()))
+
+
+
+
 
